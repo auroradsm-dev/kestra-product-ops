@@ -43,3 +43,13 @@ against it, then throws it away.
 Options I considered: wait for my own server (week 2), or a basic YAML check only.
 Why: fully self contained, no server exposed.
 Trade off I accept: each run downloads the full Kestra image and takes a few minutes.
+
+## 007: Geekasong checks: 1500 ms limit, and a health check room
+Date: 25 Nov 2026
+Decision: site and rooms checks both allow 1500 ms.
+Why: measured about 70 ms for the site and 120 ms for a room. 1500 ms leaves
+room for slow networks without hiding a real problem.
+Side effect I accept: each check wakes a room called kestra-healthcheck.
+No player sees it and it goes back to sleep.
+Lesson: I checked each page's real title before using it as expected text.
+Mypetravel's title is "My Pet Travel", so a guess would have alerted on a healthy site.

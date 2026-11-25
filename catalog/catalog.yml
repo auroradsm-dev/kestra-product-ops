@@ -1,0 +1,46 @@
+# One entry per app. Every ops and PM flow reads this file.
+# Adding an app means adding an entry here, not editing flows.
+apps:
+  - id: mypetravel
+    name: Mypetravel
+    checks:
+      - id: site
+        url: https://mypetravel.com
+        method: GET
+        expect_status: 200
+        expect_text: "My Pet Travel"   # catches a 200 that serves a blank page
+        max_ms: 1500
+      - id: ask_claude_api
+        url: https://mypetravel-api.fridaynight.workers.dev/chat
+        method: POST
+        headers:
+          Origin: https://mypetravel.com
+        expect_status: 401          # the API must refuse strangers
+    ssl_hosts: [mypetravel.com]
+    deploy:
+      repo: auroradsm-dev/mypettravel
+      platform: netlify
+    status_pages: [netlify, cloudflare, supabase]
+    has_user_data: true             # gets nightly backups
+
+  - id: geekasong
+    name: Geekasong
+    checks:
+      - id: site
+        url: https://geekasong.com
+        method: GET
+        expect_status: 200
+        expect_text: "Geekasong"
+        max_ms: 1500
+      - id: rooms
+        url: https://geekasong.com/parties/main/kestra-healthcheck
+        method: GET
+        expect_status: 404           # a room answering plain HTTP
+        expect_text: "Not implemented"
+        max_ms: 1500
+    ssl_hosts: [geekasong.com]
+    deploy:
+      repo: auroradsm-dev/geekasong
+      platform: cloudflare
+    status_pages: [cloudflare, deezer]
+    has_user_data: false            # game rooms are temporary, nothing to back up
