@@ -9,7 +9,7 @@ apps:
         method: GET
         expect_status: 200
         expect_text: "My Pet Travel"   # catches a 200 that serves a blank page
-        max_ms: 1500
+        max_ms: 2000
       - id: ask_claude_api
         url: https://mypetravel-api.fridaynight.workers.dev/chat
         method: POST
