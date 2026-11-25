@@ -11,7 +11,7 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # A random password for this run only, hidden from the logs.
       - name: Make a throwaway login
@@ -27,7 +27,7 @@ jobs:
           PASS: ${{ steps.login.outputs.password }}
         run: |
           CONFIG=$(printf 'kestra:\n  server:\n    basic-auth:\n      username: "ci@example.com"\n      password: "%s"\n' "$PASS")
-          docker run -d --name kestra -p 8080:8080 -p 8081:8081 \
+          docker run -d --name kestra -p 8080:8080 \
             -e KESTRA_CONFIGURATION="$CONFIG" \
             kestra/kestra:v2.0 server local
 
@@ -35,7 +35,7 @@ jobs:
       - name: Wait until Kestra is up
         run: |
           for i in $(seq 1 60); do
-            curl -sf http://localhost:8081/health > /dev/null && echo "Kestra is up" && exit 0
+            curl -s -o /dev/null http://localhost:8080 && echo "Kestra is up" && exit 0
             sleep 5
           done
           echo "Kestra did not start"; exit 1
