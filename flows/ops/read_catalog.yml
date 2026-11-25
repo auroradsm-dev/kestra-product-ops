@@ -1,0 +1,12 @@
+id: read_catalog
+namespace: aurora.ops
+description: Reads the catalog and lists each app. First step towards catalog driven checks.
+
+tasks:
+  - id: each_app
+    type: io.kestra.plugin.core.flow.Loop
+    values: "{{ yaml(read('catalog.yml')).apps }}"
+    tasks:
+      - id: log_app
+        type: io.kestra.plugin.core.log.Log
+        message: "{{ fromJson(item.value).name }}: {{ fromJson(item.value).checks | length }} checks"
