@@ -1,8 +1,8 @@
 # Decisions
 
-## 001: Rename the repo to Kestra-Product-Ops
+## 001: Rename the repo to kestra-product-ops
 Date: 25 Nov 2026
-Decision: rename kestra-app-monitor to Kestra-Product-Ops.
+Decision: rename kestra-app-monitor to kestra-product-ops.
 Why: this is not only a monitoring feature anymore. It includes product
 workflows and automation. I am building the DevOps and Product team I don't have.
 
