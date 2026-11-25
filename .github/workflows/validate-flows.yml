@@ -1,0 +1,53 @@
+# Validates every flow on each push, against a throwaway Kestra started inside CI.
+# Kestra 2.0 can only validate against a running server, and mine is on my Mac.
+name: Validate flows
+
+on:
+  push:
+    paths: ["flows/**", ".github/workflows/validate-flows.yml"]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # A random password for this run only, hidden from the logs.
+      - name: Make a throwaway login
+        id: login
+        run: |
+          PASS="Ci$(openssl rand -hex 8)A1"
+          echo "::add-mask::$PASS"
+          echo "password=$PASS" >> "$GITHUB_OUTPUT"
+
+      # Full image (not slim) so every plugin is there to validate against.
+      - name: Start a throwaway Kestra
+        env:
+          PASS: ${{ steps.login.outputs.password }}
+        run: |
+          CONFIG=$(printf 'kestra:\n  server:\n    basic-auth:\n      username: "ci@example.com"\n      password: "%s"\n' "$PASS")
+          docker run -d --name kestra -p 8080:8080 -p 8081:8081 \
+            -e KESTRA_CONFIGURATION="$CONFIG" \
+            kestra/kestra:v2.0 server local
+
+      # Kestra takes a minute or two to start. Give up after 5 minutes.
+      - name: Wait until Kestra is up
+        run: |
+          for i in $(seq 1 60); do
+            curl -sf http://localhost:8081/health > /dev/null && echo "Kestra is up" && exit 0
+            sleep 5
+          done
+          echo "Kestra did not start"; exit 1
+
+      - name: Validate flows
+        uses: kestra-io/validate-flows-action-v2@main
+        with:
+          directory: ./flows
+          server: http://localhost:8080
+          user: ci@example.com
+          password: ${{ steps.login.outputs.password }}
+
+      - name: Show Kestra logs if something failed
+        if: failure()
+        run: docker logs kestra 2>&1 | tail -100
