@@ -35,3 +35,11 @@ Date: 25 Nov 2026
 Decision: run everything on one Kestra instance with Postgres.
 Why: it all shares the same plumbing. Same catalog, same database,
 same sync from GitHub.
+
+## 006: CI validates flows against a throwaway Kestra
+Date: 25 Nov 2026
+Decision: on each push, CI starts a temporary Kestra, validates every flow
+against it, then throws it away.
+Options I considered: wait for my own server (week 2), or a basic YAML check only.
+Why: fully self contained, no server exposed.
+Trade off I accept: each run downloads the full Kestra image and takes a few minutes.

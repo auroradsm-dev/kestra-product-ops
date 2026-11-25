@@ -1,5 +1,7 @@
 # Kestra App Monitor
 
+![Validate flows](https://github.com/auroradsm-dev/kestra-product-ops/actions/workflows/validate-flows.yml/badge.svg)
+
 Two [Kestra](https://kestra.io) 2.0 flows that watch my live apps, buzz my phone when something is down or slow, and let Claude check my apps on request over MCP.
 
 Ask Claude *"is Mypetravel working?"* and it calls my Kestra flow with `app=mypetravel`. Kestra runs only those checks and answers, and every agent call is recorded as an execution I can inspect.
