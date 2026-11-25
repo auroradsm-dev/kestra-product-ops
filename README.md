@@ -29,14 +29,14 @@ flowchart LR
     T --> N["ntfy push<br/>to my phone"]
 ```
 
-**`check_my_apps`** ([flow](flows/check_my_apps.yml))
+**`check_my_apps`** ([flow](flows/ops/check_my_apps.yml))
 * **Inputs:** `app` (all, mypetravel or geekasong, shown with readable labels) and `max_response_ms` (default 2000). The schedule uses the defaults; people pick from a form; Claude passes them as tool parameters.
 * **Flowable tasks:** a `Parallel` task runs one `If` branch per app, so only the requested apps are checked, side by side. I chose If inside Parallel over a Switch because task ids must be unique in a flow, and a Switch "all" case would have needed duplicated checks.
 * **Retries before failure:** each website check retries 3 times, 30 seconds apart.
 * **Python for response time:** a `python.Script` task runs in a throwaway `python:3.13-slim` container, times each selected site and returns the numbers with `Kestra.outputs()`. A `Fail` task trips if the slowest site is over the limit.
 * **Two triggers:** an hourly `Schedule` and an `McpToolTrigger` that registers the flow as the tool `check-my-apps`, labelled `readOnly`, not `destructive` and `idempotent`.
 
-**`alert_on_failure`** ([flow](flows/alert_on_failure.yml))
+**`alert_on_failure`** ([flow](flows/alerts/alert_on_failure.yml))
 * A `Flow` trigger fires whenever any flow in `aurora.monitoring` ends `FAILED` or `WARNING`, and pushes a notification through [ntfy](https://ntfy.sh) with a plain HTTP request.
 * It lives in its own namespace so it can never trigger itself.
 * Any new flow I add to `aurora.monitoring` gets alerting for free, with no alert code inside it.
